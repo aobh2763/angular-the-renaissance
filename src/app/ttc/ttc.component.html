@@ -1,0 +1,62 @@
+
+<div class="container border border-2 border-primary p-2 mt-3 bg-light">
+
+  <h4 class="mb-2">TTC Calculator</h4>
+
+  <div class="row g-1 mb-2">
+
+    <div class="col">
+      <input
+        type="number"
+        class="form-control form-control-sm"
+        [ngModel]="prix_ht()"
+        (ngModelChange)="prix_ht.set($event)"
+      />
+      <label class="form-label small mb-0">Prix HT</label>
+    </div>
+
+    <div class="col">
+      <input
+        type="number"
+        class="form-control form-control-sm"
+        [ngModel]="quantity()"
+        (ngModelChange)="quantity.set($event)"
+      />
+      <label class="form-label small mb-0">Quantité</label>
+    </div>
+
+    <div class="col">
+      <input
+        type="number"
+        class="form-control form-control-sm"
+        [ngModel]="tva()"
+        (ngModelChange)="tva.set($event)"
+      />
+      <label class="form-label small mb-0">TVA (%)</label>
+    </div>
+
+  </div>
+
+  <div class="row g-1">
+
+    <div class="col">
+      <div class="alert alert-info py-3 small mb-0">
+        Prix unitaire TTC : ${{ prix_unitaire_ttc() | number:'1.2-2' }}
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="alert alert-success py-3 small mb-0">
+        Prix total TTC : ${{ prix_total_ttc() | number:'1.2-2' }}
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="alert alert-danger py-3 small mb-0">
+        Discount : ${{ discount() | number:'1.2-2' }}
+      </div>
+    </div>
+
+  </div>
+
+</div>
