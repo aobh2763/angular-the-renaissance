@@ -51,6 +51,8 @@ import { ProductsComponent } from "./products/products.component";
 import { ServiceWorkerModule } from "@angular/service-worker";
 import { AutocompleteComponent } from "./cv/autocomplete/autocomplete.component";
 import { SliderComponent } from "./rxjs/slider/slider.component";
+import { Rainbow } from "./directives/rainbow/rainbow";
+import { RainbowInputComponent } from "./components/rainbow-input/rainbow-input.component";
 
 @NgModule({
   declarations: [
@@ -90,6 +92,8 @@ import { SliderComponent } from "./rxjs/slider/slider.component";
     RhComponent,
     UserListComponent,
     ProductsComponent,
+    RainbowInputComponent,
+    Rainbow,
   ],
   bootstrap: [AppComponent],
   imports: [
@@ -111,4 +115,4 @@ import { SliderComponent } from "./rxjs/slider/slider.component";
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })
-export class AppModule {}
+export class AppModule { }
