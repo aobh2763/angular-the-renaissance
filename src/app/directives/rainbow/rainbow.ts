@@ -1,11 +1,16 @@
-import { Directive, HostBinding, HostListener } from '@angular/core';
+import { Directive } from '@angular/core';
 
 @Directive({
   selector: 'input[appRainbow] textarea[appRainbow]',
+  host: {
+    '[style.color]': 'color',
+    '[style.border-color]': 'borderColor',
+    '(keyup)': 'onKeyUp()'
+  }
 })
 export class Rainbow {
-  @HostBinding('style.color') color: string = '#000000';
-  @HostBinding('style.border-color') borderColor: string = '#ffffff';
+  color: string = '#000000';
+  borderColor: string = '#ffffff';
 
   getRandomColor(): string {
     const letters = '0123456789ABCDEF';
@@ -17,7 +22,7 @@ export class Rainbow {
     return color;
   }
 
-  @HostListener('keyup') OnKeyUp() {
+  onKeyUp() {
     this.color = this.getRandomColor();
     this.borderColor = this.getRandomColor();
   }
