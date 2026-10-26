@@ -1,7 +1,5 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { catchError, debounceTime, distinctUntilChanged, of, startWith, switchMap } from "rxjs";
+import { Component, inject, ChangeDetectionStrategy, debounced, signal } from "@angular/core";
+import { rxResource } from "@angular/core/rxjs-interop";
 import { CvService } from "../services/cv.service";
 import { ItemComponent } from "../item/item.component";
 
@@ -10,23 +8,20 @@ import { ItemComponent } from "../item/item.component";
     templateUrl: "./autocomplete.component.html",
     styleUrls: ["./autocomplete.component.css"],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [ReactiveFormsModule, ItemComponent]
+    imports: [ItemComponent]
 })
 export class AutocompleteComponent {
-  formBuilder = inject(FormBuilder);
-  cvService = inject(CvService);
-  form = this.formBuilder.nonNullable.group({ search: "" });
-  results = toSignal(
-    this.form.controls.search.valueChanges.pipe(
-      startWith(this.form.controls.search.value),
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap((term) =>
-        term.trim()
-          ? this.cvService.selectByName(term).pipe(catchError(() => of([])))
-          : of([]),
-      ),
-    ),
-    { initialValue: [] },
-  );
+  private cvService = inject(CvService);
+
+  query = signal("");
+  debouncedQuery = debounced(this.query, 300);
+  results = rxResource({
+    params: () => this.debouncedQuery.value().trim() || undefined,
+    defaultValue: [],
+    stream: ({ params }) => this.cvService.selectByName(params),
+  });
+
+  onSearchInput(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
 }

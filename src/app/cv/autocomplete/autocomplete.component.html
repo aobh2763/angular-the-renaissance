@@ -1,9 +1,19 @@
-<form [formGroup]="form">
-  <input type="text" class="form-control" formControlName="search" />
-</form>
-@if (results().length) {
+<input
+  type="text"
+  class="form-control"
+  placeholder="Rechercher un CV par nom"
+  [value]="query()"
+  (input)="onSearchInput($event)"
+/>
+@if (results.isLoading()) {
+  <p class="mt-2">Recherche en cours…</p>
+}
+@if (results.error(); as error) {
+  <p class="text-danger mt-2">La recherche a échoué : {{ error.message }}</p>
+}
+@if (results.value().length) {
   <ul class="list-group mt-2">
-    @for (cv of results(); track cv.id) {
+    @for (cv of results.value(); track cv.id) {
       <li class="list-group-item">
         <app-item [cv]="cv"></app-item>
       </li>

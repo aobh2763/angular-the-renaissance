@@ -1,5 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { Cv } from "../model/cv";
+import { CreateCvDto } from "../dto/create-cv.dto";
 import { Observable, Subject } from "rxjs";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { API } from "../../../config/api.config";
@@ -21,8 +22,8 @@ export class CvService {
   selectCv$ = this.#selectCvSuject$.asObservable();
   constructor() {
     this.cvs = [
-      new Cv(1, "aymen", "sellaouti", "teacher", "as.jpg", "1234", 40),
-      new Cv(2, "skander", "sellaouti", "enfant", "       ", "1234", 4),
+      new Cv(1, "aymen", "sellaouti", "teacher", "as.jpg", 1234, 40),
+      new Cv(2, "skander", "sellaouti", "enfant", "       ", 1234, 4),
     ];
   }
 
@@ -60,8 +61,8 @@ export class CvService {
     return this.http.delete<any>(API.cv + id);
   }
 
-  addCv(cv: Cv): Observable<Cv> {
-    return this.http.post<any>(API.cv, cv);
+  addCv(cv: CreateCvDto): Observable<Cv> {
+    return this.http.post<Cv>(API.cv, cv);
   }
 
   /**

@@ -5,7 +5,7 @@ export class Cv {
     public name: string = '',
     public job: string = '',
     public path: string = '',
-    public cin: string = '',
+    public cin: number = 0,
     public age: number = 0
   ) {
   }
