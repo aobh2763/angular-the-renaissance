@@ -1,0 +1,10 @@
+textarea[appRainbow],
+input[appRainbow] {
+  border: 2px solid;
+}
+
+textarea[appRainbow]:focus,
+input[appRainbow]:focus {
+  outline: none;
+  box-shadow: none;
+}
