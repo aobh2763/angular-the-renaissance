@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { rxResource, toSignal } from "@angular/core/rxjs-interop";
+import { catchError, of } from "rxjs";
 import { Cv } from "../model/cv";
 import { LoggerService } from "../../services/logger.service";
 import { ToastrService } from "ngx-toastr";
@@ -20,22 +21,23 @@ export class CvComponent {
   private toastr = inject(ToastrService);
   private cvService = inject(CvService);
 
-  cvs = signal<Cv[]>([]);
+  cvs = rxResource({
+    defaultValue: [] as Cv[],
+    stream: () =>
+      this.cvService.getCvs().pipe(
+        catchError(() => {
+          this.toastr.error(`
+            Attention!! Les données sont fictives, problème avec le serveur.
+            Veuillez contacter l'admin.`);
+          return of(this.cvService.getFakeCvs());
+        })
+      ),
+  });
+
   selectedCv = toSignal(this.cvService.selectCv$, { initialValue: null });
   date = new Date();
 
   constructor() {
-    this.cvService.getCvs().subscribe({
-      next: (cvs) => {
-        this.cvs.set(cvs);
-      },
-      error: () => {
-        this.cvs.set(this.cvService.getFakeCvs());
-        this.toastr.error(`
-          Attention!! Les données sont fictives, problème avec le serveur.
-          Veuillez contacter l'admin.`);
-      },
-    });
     this.logger.logger("je suis le cvComponent");
     this.toastr.info("Bienvenu dans notre CvTech");
   }
