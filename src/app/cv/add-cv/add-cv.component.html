@@ -2,43 +2,41 @@
 <form [formGroup]="form" (ngSubmit)="addCv()" novalidate>
   Name:
   <input type="text" class="form-control" formControlName="name" />
-  @if (name.hasError('required') && name.touched) {
-    <div
-      class="alert alert-danger"
-      >
-      Ce champ est obligatoire
-    </div>
+  @if (name.hasError("required") && name.touched) {
+    <div class="alert alert-danger">Ce champ est obligatoire</div>
   }
   Firstname:
   <input type="text" class="form-control" formControlName="firstname" />
-  @if (firstname?.hasError('required') && firstname?.touched) {
+  @if (firstname?.hasError("required") && firstname?.touched) {
     <div class="alert alert-danger">Ce champ est obligatoire</div>
   }
   Age:
   <input type="number" class="form-control" formControlName="age" />
-  @if (age.hasError('required') && age.touched) {
+  @if (age.hasError("required") && age.touched) {
     <div class="alert alert-danger">Ce champ est obligatoire</div>
   }
   Cin:
   <input type="number" class="form-control" formControlName="cin" />
-  @if (cin.hasError('required') && cin.touched) {
+  @if (cin.hasError("required") && cin.touched) {
     <div class="alert alert-danger">Ce champ est obligatoire</div>
   }
-  @if (cin.hasError('pattern') && cin.touched) {
-    <div class="alert alert-danger">La CIN doit contenir exactement 8 chiffres</div>
+  @if (cin.hasError("pattern") && cin.touched) {
+    <div class="alert alert-danger">
+      La CIN doit contenir exactement 8 chiffres
+    </div>
   }
   Job:
   <input type="text" class="form-control" formControlName="job" />
-  @if (job?.hasError('required') && job?.touched) {
+  @if (job?.hasError("required") && job?.touched) {
     <div class="alert alert-danger">Ce champ est obligatoire</div>
   }
   Path:
   <input type="text" class="form-control" formControlName="path" />
 
-  <button type="submit" class="btn btn-primary">
-    add cv
-  </button>
-  @if (submitAttempted && form.invalid) {
-    <p class="text-danger">Veuillez corriger les champs signalés avant d'ajouter le CV.</p>
+  <button type="submit" class="btn btn-primary">add cv</button>
+  @if (submitAttempted() && form.invalid) {
+    <p class="text-danger">
+      Veuillez corriger les champs signalés avant d'ajouter le CV.
+    </p>
   }
 </form>
