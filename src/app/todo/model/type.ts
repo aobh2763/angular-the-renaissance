@@ -1,0 +1,1 @@
+export type TodoState = 'waiting' | 'in progress' | 'done';

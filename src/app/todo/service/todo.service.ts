@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
+import { computed, Injectable, Signal, signal, WritableSignal } from '@angular/core';
 import { Todo } from '../model/todo';
 import { LoggerService } from '../../services/logger.service';
+
 
 let n = 1;
 
@@ -11,13 +13,15 @@ export class TodoService {
   private loggerService = inject(LoggerService);
 
   private todos: Todo[] = [];
+  private todos = signal<Todo[]>([]);
+  constructor(private loggerService: LoggerService) {}
 
   /**
    * elle retourne la liste des todos
    *
    * @returns Todo[]
    */
-  getTodos(): Todo[] {
+  getTodos(): Signal<Todo[]> {
     return this.todos;
   }
 
@@ -28,7 +32,7 @@ export class TodoService {
    *
    */
   addTodo(todo: Todo): void {
-    this.todos.push(todo);
+    this.todos.update((currentTodos) => [...currentTodos, todo]);
   }
 
   /**
@@ -38,9 +42,11 @@ export class TodoService {
    * @returns boolean
    */
   deleteTodo(todo: Todo): boolean {
-    const index = this.todos.indexOf(todo);
+    const index = this.todos().indexOf(todo);
     if (index > -1) {
-      this.todos.splice(index, 1);
+      this.todos.update((currentTodos) =>
+        currentTodos.filter((t) => t !== todo),
+      );
       return true;
     }
     return false;
@@ -51,5 +57,27 @@ export class TodoService {
    */
   logTodos() {
     this.loggerService.logger(this.todos);
+  }
+
+  getTodosWaiting(): Signal<Todo[]> {
+    return computed(() =>
+      this.todos().filter((todo) => todo.state === 'waiting'),
+    );
+  }
+
+  getTodosInProgress(): Signal<Todo[]> {
+    return computed(() =>
+      this.todos().filter((todo) => todo.state === 'in progress'),
+    );
+  }
+
+  getTodosDone(): Signal<Todo[]> {
+    return computed(() => this.todos().filter((todo) => todo.state === 'done'));
+  }
+
+  updateTodoState(todo: Todo, state: Todo['state']): void {
+    this.todos.update((todos) =>
+      todos.map((t) => (t === todo ? { ...t, state } : t)),
+    );
   }
 }

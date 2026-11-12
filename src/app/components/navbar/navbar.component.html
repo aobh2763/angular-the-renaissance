@@ -84,6 +84,12 @@
         @if (authService.isAuthenticated()) {
           <a class="nav-link" (click)="logout()">Logout</a>
         }
+        <a
+          class="nav-link"
+          [routerLink]="['ttc']"
+          routerLinkActive="active text-primary"
+          >TTC</a
+        >
       </div>
     </div>
   </div>
