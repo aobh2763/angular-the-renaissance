@@ -1,0 +1,25 @@
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box:focus-within {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
+}
+
+.search-box i {
+  color: #6c757d;
+}
+
+.search-box .form-control {
+  border: none;
+  box-shadow: none;
+  outline: none;
+}

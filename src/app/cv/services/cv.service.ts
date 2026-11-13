@@ -106,8 +106,19 @@ export class CvService {
    * @param name : string
    * @returns cvs Cv[]
    */
-  selectByName(name: string) {
-    const search = `{"where":{"name":{"like":"%${name}%"}}}`;
+  selectByName(value: string) {
+
+    if (!value.trim()) {
+      return this.getCvs();
+    }
+    const search = JSON.stringify({
+      where: {
+        or: [
+          { name: { like: `%${value}%` } },
+          { firstname: { like: `%${value}%` } },
+        ],
+      },
+    });
     const params = new HttpParams().set("filter", search);
     return this.http.get<any>(API.cv, { params });
   }

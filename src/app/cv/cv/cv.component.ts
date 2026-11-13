@@ -7,11 +7,12 @@ import { ToastrService } from "ngx-toastr";
 import { CvService } from "../services/cv.service";
 
 @Component({
-  selector: "app-cv",
-  templateUrl: "./cv.component.html",
-  styleUrls: ["./cv.component.css"],
+  selector: 'app-cv',
+  templateUrl: './cv.component.html',
+  styleUrls: ['./cv.component.css'],
 })
 export class CvComponent {
+  
   /* 
   cvs: Cv[] = [];
   selectedCv: Cv | null = null;
@@ -21,10 +22,11 @@ export class CvComponent {
   cvs$: Observable<Cv[]>;
   selectedCv$: Observable<Cv | null>;
 
+
   constructor(
     private logger: LoggerService,
     private toastr: ToastrService,
-    private cvService: CvService
+    private cvService: CvService,
   ) {
     /*
     this.cvService.getCvs().subscribe({
@@ -39,18 +41,23 @@ export class CvComponent {
       },
     });
     */
-   
+
     this.cvs$ = this.cvService.getCvs().pipe(
       catchError(() => {
         this.toastr.error(
-          "Erreur lors du chargement des CVs. Affichage des CVs fictifs.",
+          'Erreur lors du chargement des CVs. Affichage des CVs fictifs.',
         );
         return of(this.cvService.getFakeCvs());
-      })
+      }),
     );
     this.selectedCv$ = this.cvService.selectCv$;
 
-    this.logger.logger("je suis le cvComponent");
-    this.toastr.info("Bienvenu dans notre CvTech");
+    this.logger.logger('je suis le cvComponent');
+    this.toastr.info('Bienvenu dans notre CvTech');
+  }
+  onCvSelected(cvs: Cv[]) {
+    this.cvs$ = of(cvs);
+
+    
   }
 }
