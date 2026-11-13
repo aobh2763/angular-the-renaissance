@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { computed, Injectable, Signal, signal, WritableSignal } from '@angular/core';
+import { computed, Signal, signal, WritableSignal } from '@angular/core';
 import { Todo } from '../model/todo';
 import { LoggerService } from '../../services/logger.service';
 
@@ -12,9 +12,9 @@ let n = 1;
 export class TodoService {
   private loggerService = inject(LoggerService);
 
-  private todos: Todo[] = [];
+  // private todos: Todo[] = [];
   private todos = signal<Todo[]>([]);
-  constructor(private loggerService: LoggerService) {}
+  constructor() {}
 
   /**
    * elle retourne la liste des todos
