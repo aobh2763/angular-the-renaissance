@@ -1,18 +1,28 @@
-import { Component, ChangeDetectionStrategy, inject } from "@angular/core";
-import { AbstractControl, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
-import { HttpErrorResponse } from "@angular/common/http";
-import { CvService } from "../services/cv.service";
-import { Router } from "@angular/router";
-import { ToastrService } from "ngx-toastr";
-import { APP_ROUTES } from "src/config/routes.config";
-import { CreateCvDto } from "../dto/create-cv.dto";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
+import { CvService } from '../services/cv.service';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { APP_ROUTES } from 'src/config/routes.config';
+import { CreateCvDto } from '../dto/create-cv.dto';
 
 @Component({
-    selector: "app-add-cv",
-    templateUrl: "./add-cv.component.html",
-    styleUrls: ["./add-cv.component.css"],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [ReactiveFormsModule]
+  selector: 'app-add-cv',
+  templateUrl: './add-cv.component.html',
+  styleUrls: ['./add-cv.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [ReactiveFormsModule],
 })
 export class AddCvComponent {
   private cvService = inject(CvService);
@@ -20,38 +30,37 @@ export class AddCvComponent {
   private toastr = inject(ToastrService);
   private formBuilder = inject(FormBuilder);
 
-  submitAttempted = false;
+  submitAttempted = signal(false);
 
-  form = this.formBuilder.group(
-    {
-      name: ["", Validators.required],
-      firstname: ["", Validators.required],
-      path: [""],
-      job: ["", Validators.required],
-      cin: [
-        "",
-        {
-          validators: [Validators.required, Validators.pattern("[0-9]{8}")],
-        },
-      ],
-      age: [null, Validators.required],
-    },
-  );
+  form = this.formBuilder.group({
+    name: ['', Validators.required],
+    firstname: ['', Validators.required],
+    path: [''],
+    job: ['', Validators.required],
+    cin: [
+      '',
+      {
+        validators: [Validators.required, Validators.pattern('[0-9]{8}')],
+      },
+    ],
+    age: [null, Validators.required],
+  });
 
   addCv() {
     if (this.form.invalid) {
-      this.submitAttempted = true;
+      this.submitAttempted.set(true);
       this.form.markAllAsTouched();
       return;
     }
 
-    this.submitAttempted = false;
+    this.submitAttempted.set(false);
+
     const raw = this.form.getRawValue();
     const payload: CreateCvDto = {
-      name: raw.name ?? "",
-      firstname: raw.firstname ?? "",
-      path: raw.path ?? "",
-      job: raw.job ?? "",
+      name: raw.name ?? '',
+      firstname: raw.firstname ?? '',
+      path: raw.path ?? '',
+      job: raw.job ?? '',
       age: Number(raw.age ?? 0),
       cin: Number(raw.cin ?? 0),
     };
@@ -62,7 +71,7 @@ export class AddCvComponent {
         this.toastr.success(`Le cv ${cv.firstname} ${cv.name}`);
       },
       error: (error: HttpErrorResponse) => {
-        console.error("Erreur lors de l’ajout du CV", error.error);
+        console.error('Erreur lors de l’ajout du CV', error.error);
         this.toastr.error(this.getAddCvErrorMessage(error));
       },
     });
@@ -70,18 +79,18 @@ export class AddCvComponent {
 
   private getAddCvErrorMessage(error: HttpErrorResponse): string {
     const body: unknown = error.error;
-    if (typeof body === "object" && body !== null) {
+    if (typeof body === 'object' && body !== null) {
       const response = body as Record<string, unknown>;
-      const apiError = response["error"];
-      if (typeof apiError === "object" && apiError !== null) {
-        const message = (apiError as Record<string, unknown>)["message"];
-        if (typeof message === "string" && message.length > 0) {
+      const apiError = response['error'];
+      if (typeof apiError === 'object' && apiError !== null) {
+        const message = (apiError as Record<string, unknown>)['message'];
+        if (typeof message === 'string' && message.length > 0) {
           return `Le serveur a refusé le CV : ${message}`;
         }
       }
 
-      const message = response["message"];
-      if (typeof message === "string" && message.length > 0) {
+      const message = response['message'];
+      if (typeof message === 'string' && message.length > 0) {
         return `Le serveur a refusé le CV : ${message}`;
       }
     }
@@ -90,21 +99,21 @@ export class AddCvComponent {
   }
 
   get name(): AbstractControl {
-    return this.form.get("name")!;
+    return this.form.get('name')!;
   }
   get firstname() {
-    return this.form.get("firstname");
+    return this.form.get('firstname');
   }
   get age(): AbstractControl {
-    return this.form.get("age")!;
+    return this.form.get('age')!;
   }
   get job() {
-    return this.form.get("job");
+    return this.form.get('job');
   }
   get path() {
-    return this.form.get("path");
+    return this.form.get('path');
   }
   get cin(): AbstractControl {
-    return this.form.get("cin")!;
+    return this.form.get('cin')!;
   }
 }

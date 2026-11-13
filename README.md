@@ -1,164 +1,198 @@
-# Angular TP1 "La renaissance": Team Task Division
+# Angular TP2: Team Task Division
 
-Team of 5. Goal: split the work fairly so everyone can start right away and work in parallel.
+Team of 5 (same as TP1). Goal: **equal effort for everyone**, with no one blocked for long, so all five can work in parallel.
+
+> Assumes the TP1 branches `rxjs` and `signal` already exist. If not, create them first (see the TP1 document).
 
 ---
 
 ## 1. At a glance
 
-| Person | Main responsibility                                         | Slides  | Branch      | Effort |
-| ------ | ----------------------------------------------------------- | ------- | ----------- | ------ |
-| **P1** | Migration to Angular 22 + schematics, repo and branch setup | 3–7     | `migration` | ~4     |
-| **P2** | Todo app (signals) + TTC calculator                         | 10–11   | `signal`    | ~4     |
-| **P3** | CV components with RxJS + rainbow directive (RxJS version)  | 14, 8–9 | `rxjs`      | ~4     |
-| **P4** | cvTech with signals (incl. architecture design)             | 12      | `signal`    | ~4     |
-| **P5** | Auth with signals + rainbow directive (signal version)      | 13, 8–9 | `signal`    | ~4     |
+Every person gets **8 points** (1 point is roughly half an hour of focused work, so treat the scores as relative estimates).
 
-> Effort is a rough estimate. We haven't seen the repo yet, so cvTech and auth may turn out bigger than expected. Rebalance after the first look.
+| Person | Task 1                                       | Task 2                    | Slides   | Branch                | Points        |
+| ------ | -------------------------------------------- | ------------------------- | -------- | --------------------- | ------------- |
+| **P1** | Loopback search + shared spec (do first)     | Products "load more"      | 3–4, 7   | `rxjs`                | 2 + 6 = **8** |
+| **P2** | CV autocomplete (RxJS)                       | CurrencySelector          | 7, 5     | `rxjs`, then `signal` | 5 + 3 = **8** |
+| **P3** | Master-Detail for CVs                        | `@defer` for `embauche`   | 9–12, 13 | `signal`              | 5 + 3 = **8** |
+| **P4** | Setup: `TP2` folder into `signal` (do first) | CV autocomplete (signals) | 5, 8     | `signal`              | 2 + 6 = **8** |
+| **P5** | Lazy loading strategy                        | ProductFilter             | 13, 6    | `signal`              | 5 + 3 = **8** |
+
+### How the points were scored
+
+| Task                        | Pts    | Why                                                                                                 |
+| --------------------------- | ------ | --------------------------------------------------------------------------------------------------- |
+| Products "load more"        | 6      | Declarative RxJS (accumulate, avoid double loads, stop condition) is the trickiest RxJS part of TP2 |
+| Autocomplete (signals)      | 6      | Same as the RxJS version, plus finding the signal answer to debouncing                              |
+| Autocomplete (RxJS)         | 5      | Familiar operator chain, but several HTTP optimizations are required                                |
+| Master-Detail               | 5      | Child routes, outlet, navigation, reusing the details component                                     |
+| Lazy loading strategy       | 5      | Open-ended: argued choices per route plus a preloading strategy                                     |
+| CurrencySelector            | 3      | One tricky rule, solved by `linkedSignal`                                                           |
+| ProductFilter               | 3      | Two input signals and a `computed` list                                                             |
+| `@defer`                    | 3      | One template block, but triggers and prefetch must be justified                                     |
+| Loopback search + spec      | 2      | Swagger test, one service method, a shared spec for both autocompletes                              |
+| Setup (`TP2` into `signal`) | 2      | Bring the folder over, make it build, fix imports                                                   |
+| **Total**                   | **40** | **5 × 8**                                                                                           |
+
+If you disagree with a score, move a task between people and keep each total at 8.
 
 ---
 
-## 2. Branch structure
+## 2. Branches and dependencies
 
 ```
-initial project ──► rxjs        (P3: RxJS exercises)
-      │
-      └─► migration ──► signal  (P2, P4, P5: signal exercises)
+P1 Loopback + spec (first hour) ──► P2 Autocomplete RxJS, P4 Autocomplete signals
+P4 Setup (TP2 → signal)         ──► P2 Currency, P5 ProductFilter
+
+Independent from the start: P1 Products · P3 Master-Detail + @defer · P5 Lazy loading
 ```
 
-- `migration`: initial project upgraded to v22, then the 3 schematics.
-- `rxjs`: created from the **initial** project (not from `migration`).
-- `signal`: created from `migration`.
-- Each person works on a feature branch (e.g. `feat/todo`, `feat/auth`) and merges via pull request. Another member reviews every PR.
+Each person's order of work:
 
-### Dependencies: who waits for whom
+| Person | Start with                                                                     | Then                                                         |
+| ------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| **P1** | Loopback + spec (about an hour, everyone is waiting on it)                     | Products                                                     |
+| **P2** | Autocomplete skeleton (streams, template) while waiting for P1's Loopback call | Finish autocomplete, then Currency once P4's setup is pushed |
+| **P3** | Master-Detail                                                                  | `@defer` (no dependency on anyone)                           |
+| **P4** | Setup (about an hour, others wait on it)                                       | Autocomplete (signals)                                       |
+| **P5** | Lazy loading (no dependency on anyone)                                         | ProductFilter once P4's setup is pushed                      |
 
-```
-P1 migration ──► signal branch ──► P2, P4, P5 (in parallel)
+Other things to coordinate:
 
-rxjs branch (from the initial project) ──► P3 (starts now)
-```
-
-| Person | Waits for P1?                                  | What they can do meanwhile                                       |
-| ------ | ---------------------------------------------- | ---------------------------------------------------------------- |
-| **P1** | No                                             | Starts first: upgrades, then schematics                          |
-| **P3** | **No**, `rxjs` is based on the initial project | Works fully from day 1                                           |
-| **P2** | Yes, for the `signal` branch                   | Builds Todo and TTC as new files now, then rebases on `signal`   |
-| **P4** | Yes                                            | Reads the `Cv` code and designs the signal architecture          |
-| **P5** | Yes                                            | Reads `auth`, navbar and details component and designs the state |
-
-- P2, P4 and P5 don't depend on each other. They touch different files (new files, `Cv` folder, `auth` and navbar).
-- The only overlap is shared files (routes, navbar, details component). Merge `signal` PRs one at a time and rebase before merging.
+- **Both small blockers (P1's Loopback and P4's setup) are first on their owners' lists** and take about an hour. Push as soon as they work.
+- **Master-Detail needs a details component that reacts to route changes.** Use a version that reads the id from `paramMap` (or a signal-based equivalent), not a one-time snapshot. With a snapshot, clicking another CV won't update the detail, because Angular reuses the component.
+- **P2 and P4 solve the same problem two ways.** Both follow the shared spec (section 4).
+- **Merge via PR**, one at a time, with another member reviewing.
 
 ---
 
 ## 3. Tasks in detail
 
-### P1: Migration and repo setup (slides 3–7)
+### P1: Loopback search + shared spec, then Products (slides 7, 3–4, `rxjs`)
 
-- [ ] Clone `gl4AngularRenaissanceTPStarting` (Angular 18)
-- [ ] Create the branch `migration`
-- [ ] Upgrade one major version at a time, committing after each and checking `ng serve` works:
-  - `ng update @angular/core@19 @angular/cli@19`
-  - then 20, 21, 22 the same way
-- [ ] Run the schematics **in this order**, checking the app builds and runs between each:
-  1. `ng g @angular/core:standalone` (3 runs):
-     - "Convert all components, directives and pipes to standalone"
-     - "Remove unnecessary NgModule classes"
-     - "Bootstrap the project using standalone APIs"
-  2. `ng g @angular/core:control-flow` (`@if` / `@for` instead of `*ngIf` / `*ngFor`)
-  3. `ng generate @angular/core:inject` (constructor injection becomes `inject()`)
-- [ ] Create `rxjs` (from the initial project) and `signal` (from `migration`) and tell the team
-- [ ] Handle merges
+**Loopback search and shared spec (first, ~2 pts)**
+- [ ] Test the Loopback filter on Swagger. It goes in the `filter` query parameter, with the syntax from slide 7 (`where` → `name` → `like` → `%text%`).
+- [ ] Add a `CvService` method that searches CVs by name (let Angular's `HttpParams` do the encoding; don't build the URL by hand with a raw `%`)
+- [ ] Post the working call to the team so P2 and P4 can use it (P4 re-adds the same method on `signal`)
+- [ ] Write the shared autocomplete spec (section 4) and agree on it with P2 and P4
 
-> Newer Angular versions already default to standalone, so some schematic steps may find little to change. That's fine.
-
----
-
-### P2: Todo app and TTC calculator (slides 10–11, `signal` branch)
-
-**Todo app**
-
-- [ ] `Todo` model: `id`, `name`, `content`, `status`
-- [ ] `export type TodoStatus = 'waiting' | 'in progress' | 'done';`
-- [ ] `TodoService` with a `signal<Todo[]>` and three `computed` lists (one per status)
-- [ ] Component with a form (name, content, add button) and 3 columns: Waiting, In Progress, Done
-- [ ] Changing a todo's status updates the signal, and the todo moves columns automatically
-
-**TTC calculator**
-
-- [ ] Signals for: price excl. tax (default **0**), quantity (default **1**), VAT % (default **18**)
-- [ ] `computed` values: unit price incl. tax, discount, total price
-- [ ] Discount rules:
-
-| Quantity               | Discount |
-| ---------------------- | -------- |
-| 10 or less             | 0%       |
-| more than 10, up to 15 | 20%      |
-| more than 15           | 30%      |
-
-> The slide says "between 10 and 15", but its screenshot shows quantity 10 with a $0 discount. We assume the table above. **Confirm with the instructor.**
+**Products "load more" (slides 3–4, 6 pts)**
+- [ ] The component already exists in the `product` folder. Finish what's missing.
+- [ ] API: `https://dummyjson.com/products` (docs: `/docs/products`). It supports `limit` and `skip` and returns the products plus a `total`.
+- [ ] Start with **12** products
+- [ ] The "more products" button loads the next batch and **adds** it to what's already shown
+- [ ] When nothing remains (loaded count reaches `total`, or an empty page), **stop calling the API** and hide or disable the button
+- [ ] **Declarative code** (slide 3 insists): no manual `subscribe`, no pushing into an array
+  - A Subject for button clicks, `scan` to accumulate the offset and the list, `exhaustMap` (or `concatMap`) for the request, `async` pipe in the template
+  - `exhaustMap` ignores clicks while a request is running, which prevents double loading
 
 ---
 
-### P3: RxJS branch (slides 14 and 8–9, `rxjs`)
+### P2: CV autocomplete (RxJS), then CurrencySelector (slides 7, 5)
 
-**CV components**
+**Autocomplete with RxJS (slide 7, `rxjs`, 5 pts)**
+- [ ] Reuse the existing autocomplete component and P1's Loopback method
+- [ ] Typing changes the choices live, showing only CVs whose name contains the typed text
+- [ ] Selecting a choice shows the matching CV
+- [ ] **Minimize HTTP calls** (the slide says don't spam the server):
+  - `debounceTime` to wait for the user to pause
+  - `distinctUntilChanged` to skip identical queries
+  - skip empty input
+  - `switchMap` to cancel the outdated request
+  - reuse the CV object already returned instead of fetching it again
+- [ ] Put `catchError` inside the `switchMap`
+- [ ] "Most reactive code possible": everything is a stream, `async` pipe in the template, no manual subscriptions
 
-- [ ] Rework `CvComponent` and `DetailsCvComponent`
-- [ ] Keep data as `Observable`s and use the **`async` pipe** wherever possible (no manual `subscribe` / `unsubscribe`)
-- [ ] Handle errors with **`catchError`** (return a fallback like `of([])` and expose an error message to the template)
+**CurrencySelector (slide 5, `signal`, 3 pts, after P4's setup)**
+- [ ] The component and `countries` data are in the `TP2` folder
+- [ ] Two selects: country, then currency
+- [ ] Choosing a country fills the second select with that country's accepted currencies
+- [ ] Rule for the selected currency when the country changes:
+  - keep the previous currency **if the new country accepts it**
+  - otherwise select the **first** currency of the new country
+- [ ] Use signal APIs. `linkedSignal` is the natural fit: a writable value that resets from a source (the currency list) but can still be set by the user. Pair it with a `computed` for the list of currencies.
 
-**Rainbow directive (RxJS version)**
-
-- [ ] See the spec in section 4
-
----
-
-### P4: cvTech with signals (slide 12, `signal` branch)
-
-- [ ] Rework the `Cv` folder using signals where they make sense (CV list, selected CV, filter or search state)
-- [ ] Design the architecture first: a service owns the state as signals, and components read from it and derive values with `computed`
-- [ ] Use `effect` sparingly, and not for state you could simply derive
-- [ ] Prepare a justification for every choice (why a signal here, why an observable there). This is the part most likely to be questioned at validation.
-
----
-
-### P5: Auth with signals and rainbow directive (slides 13 and 8–9, `signal` branch)
-
-**Authentication**
-
-- [ ] Read the `auth` folder, the navbar and the details component first
-- [ ] `AuthService` keeps the user (`id`, `email`) in a signal, plus an `isAuthenticated` `computed`
-- [ ] Persist the user (e.g. localStorage) and **restore it when the app loads**
-- [ ] Navbar and details component read the signals directly
-- [ ] **No state management library** (no NgRx)
-
-**Rainbow directive (signal version)**
-
-- [ ] Same behavior as P3's version, but state held in signals so the difference between the branches is visible
+> Heads-up: the slide's example says "TND", but the data uses `DIN` for Tunisia. Don't hunt for a bug, the example is just inconsistent. Also, pasting the data from the PDF gives curly quotes (`’`), which break TypeScript. Retype them.
 
 ---
 
-## 4. Rainbow directive: shared spec (P3 and P5, slides 8–9)
+### P3: Master-Detail, then `@defer` (slides 9–12, 13, `signal`)
 
-Agree on this together so both versions behave the same.
+Both tasks live in the Cv area, so one person avoids merge conflicts there. No dependency on teammates.
 
-- Selector limited to inputs: `input[appRainbow]`. It must **not** apply to a `div`.
-- Host bindings on `color` and `border-color`.
-- A method that generates a random hex color (`#` + 6 random hex digits).
-- A `keyup` listener that picks a new random color on every keystroke.
-- **P3:** classic `@HostBinding` with plain properties.
-- **P5:** signal-based state bound to the host styles.
+**Master-Detail (slides 9–12, 5 pts)**
+- [ ] Create the `MasterDetailsCv` component
+- [ ] **Master**: shows the CV list. **Detail**: shows the CV that was clicked, on the same page, with no full page reload.
+- [ ] Implement it with **child routes**: a parent route for the list (`/cv/list` in the screenshot) and a child route with the id (`/cv/list/:id`)
+- [ ] The master template contains a `<router-outlet>` where the detail appears (slide 10 diagram)
+- [ ] Clicking a CV navigates to the child route
+- [ ] Reuse the details component, making sure it reacts when the id changes (see section 2)
+- [ ] The "container works!" and "resolution-modifiers works!" boxes in the screenshot look like unrelated placeholders, not requirements
+
+**`@defer` for the `embauche` component (slide 13, 3 pts)**
+- [ ] In the Cv page, defer loading **and** display of the `embauche` component
+- [ ] Choose **triggers** and justify them: `on viewport` (if it's below the fold), `on idle`, `on interaction`, `on hover`, `on timer`, or `when <condition>`
+- [ ] Add **prefetching** (e.g. `prefetch on idle` or `prefetch on hover`) so the content is ready before it's shown
+- [ ] Add `@placeholder` (required for `on viewport`), plus `@loading` and `@error` blocks where useful
+- [ ] **Deferred components must be standalone.** That's why `signal` (post-migration) is the suggested branch. On `rxjs` you'd have to make `embauche` standalone first.
+
+---
+
+### P4: Setup, then CV autocomplete (signals) (slides 5, 8, `signal`)
+
+**Setup (first, ~2 pts)**
+- [ ] Pull the instructor's new `TP2` folder from the main branch into `signal` (fetch upstream, then check out that folder from main)
+- [ ] Make sure it builds (imports, routes), commit and push
+- [ ] Tell P2 and P5 it's available
+
+**Autocomplete with signals (slide 8, 6 pts)**
+- [ ] Same exercise and behavior as P2's, but with signals (slide 8: "reprenez le même exercice dans la branche signal")
+- [ ] Follow the shared spec (section 4) and add P1's Loopback method on `signal`
+- [ ] Suggested structure: a `signal` for the typed text, a signal-based way to load the CVs from that text, a `signal` for the selected CV, and a `computed` for what is displayed
+- [ ] Signal tools to evaluate: `resource` / `rxResource` (check their status in your Angular 22 version), or `toObservable` + `toSignal`
+- [ ] **Debouncing has no direct signal equivalent.** The usual answer is to cross into RxJS at that one spot (`toObservable`, `debounceTime`, then back with `toSignal`). Be ready to explain why this is fine and what it says about signals vs RxJS.
+- [ ] Don't spam the server: debounce, skip empty input, and don't re-fetch the selected CV
+
+---
+
+### P5: Lazy loading, then ProductFilter (slides 13, 6, `signal`)
+
+**Lazy loading (slide 13, 5 pts)**
+- [ ] Improve route loading with a sensible strategy and **argued choices** (the slide grades the reasoning)
+- [ ] Decide per route: always-needed pages (home, auth) load eagerly; feature areas (CV, todo, products...) load lazily
+- [ ] Pick a **preloading strategy** and say why. Options to compare:
+  - no preloading: smallest initial load, but a delay on first navigation
+  - preload everything: simple, but downloads pages nobody may visit
+  - custom strategy: preload only the routes users are likely to open next (e.g. flag them in the route data)
+- [ ] Consider `canMatch` guards so users who aren't allowed in don't even download the chunk
+
+**ProductFilter (slide 6, 3 pts, after P4's setup)**
+- [ ] Finish the `ProductFilter` component in the `TP2` folder
+- [ ] It has a text input (filter string), a category select, and a product list (with a Reset button in the screenshot)
+- [ ] **Changing category must keep the list filtered by the text field**: the list depends on both the text and the category
+- [ ] Use signals: `signal` for the text and category, `computed` for the filtered list
+- [ ] The screenshot title mentions `LinkedSignal`. Use it only where it genuinely fits, and be ready to justify the choice.
+
+---
+
+## 4. Autocomplete: shared spec (P1 writes it, P2 and P4 follow it)
+
+So both versions behave the same and can be compared:
+
+- Same Loopback call and filter format (tested on Swagger first)
+- Same debounce delay (e.g. 300 ms) and same handling of empty input
+- Same behavior when nothing matches (empty list, no error)
+- Same behavior on selection: the CV shows below the list
+- Same error handling (message or fallback)
 
 ---
 
 ## 5. Suggested timeline
 
-1. **Day 1:** P1 starts the migration and creates the branches as early as possible. P3 starts immediately (the `rxjs` branch doesn't depend on the migration). P2 builds Todo and TTC as new files, so no conflicts with the schematics.
-2. **While waiting for P1:** P4 and P5 read the existing code and design their architecture (where signals live, which services hold state). They don't edit existing files yet, because the schematics rewrite them.
-3. **After migration:** everyone branches off `signal` (or `rxjs`) and works in parallel.
-4. **Before validation:** final integration, then cross-explanation sessions.
+1. **Hour 1:** P1 finishes Loopback + spec, P4 finishes the setup, both push. P2 builds the autocomplete skeleton, P3 starts Master-Detail, P5 starts lazy loading.
+2. **After the setup is pushed:** P2 can start Currency whenever the autocomplete is done, and P5 can start ProductFilter whenever lazy loading is done.
+3. **Mid-way:** P2 and P4 compare their autocomplete versions against the shared spec.
+4. **Before validation:** merge PRs one at a time, then the cross-explanation sessions.
 
 ---
 
@@ -173,9 +207,19 @@ Agree on this together so both versions behave the same.
 
 ---
 
-## 7. Shared conventions (agree on day 1)
+## 7. Open questions to confirm with the instructor
 
-- Folder structure and file naming
-- Code style (formatting, linting)
-- Commit message format
-- PR rule: at least one reviewer before merging
+- **Which branch for Master-Detail and Lazy loading / `@defer`?** The slides don't say. Suggested: `signal` for both, because `@defer` needs standalone components and keeping P3's work on one branch avoids conflicts.
+- **TND vs DIN** in the currency example (see P2).
+- **Should the ProductFilter Reset button clear both the text and the category?** The slide doesn't say, so we assume yes.
+
+---
+
+## 8. Questions to prepare for validation
+
+- **Products:** why `exhaustMap` (or `concatMap`) instead of `switchMap` for "load more"? What stops the API calls?
+- **Autocomplete:** what do `debounceTime`, `distinctUntilChanged` and `switchMap` each prevent? Why does the signal version still need RxJS for debouncing?
+- **Currency:** what does `linkedSignal` do that `computed` can't?
+- **ProductFilter:** why is the filtered list a `computed` and not stored state?
+- **Master-Detail:** why child routes, and why must the details component react to id changes instead of reading a snapshot?
+- **Lazy loading:** why this preloading strategy? Why does `@defer` need standalone components, and why those triggers?
