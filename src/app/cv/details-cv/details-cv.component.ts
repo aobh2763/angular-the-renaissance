@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of } from 'rxjs';
+import { catchError, of, switchMap } from 'rxjs';
 import { Cv } from '../model/cv';
 import { CvService } from '../services/cv.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,14 +24,22 @@ export class DetailsCvComponent {
   authService = inject(AuthService);
 
   cv = toSignal(
-    this.cvService
-      .getCvById(+this.activatedRoute.snapshot.params['id'])
-      .pipe(
-        catchError(() => {
-          void this.router.navigate([APP_ROUTES.cv]);
+    this.activatedRoute.paramMap.pipe(
+      switchMap((params) => {
+        const id = Number(params.get('id'));
+        if (!Number.isInteger(id) || id <= 0) {
+          this.navigateToList();
           return of(null);
-        }),
-      ),
+        }
+
+        return this.cvService.getCvById(id).pipe(
+          catchError(() => {
+            this.navigateToList();
+            return of(null);
+          }),
+        );
+      }),
+    ),
     { initialValue: null },
   );
 
@@ -39,7 +47,7 @@ export class DetailsCvComponent {
     this.cvService.deleteCvById(cv.id).subscribe({
       next: () => {
         this.toastr.success(`${cv.name} supprimé avec succès`);
-        this.router.navigate([APP_ROUTES.cv]);
+        this.navigateToList();
       },
       error: () => {
         this.toastr.error(
@@ -47,5 +55,16 @@ export class DetailsCvComponent {
         );
       },
     });
+  }
+
+  private navigateToList(): void {
+    if (
+      this.activatedRoute.parent?.routeConfig?.path === APP_ROUTES.masterDetail
+    ) {
+      void this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+      return;
+    }
+
+    void this.router.navigate([APP_ROUTES.cv]);
   }
 }

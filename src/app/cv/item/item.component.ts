@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, input } from "@angular/core";
+import { Component, ChangeDetectionStrategy, inject, input, output } from "@angular/core";
 import { Cv } from "../model/cv";
 import { CvService } from "../services/cv.service";
 import { NgStyle } from "@angular/common";
@@ -16,8 +16,10 @@ export class ItemComponent {
 
   cv = input.required<Cv>();
   size = input(50);
+  selectCv = output<Cv>();
 
   onSelectCv() {
     this.cvService.selectCv(this.cv());
+    this.selectCv.emit(this.cv());
   }
 }

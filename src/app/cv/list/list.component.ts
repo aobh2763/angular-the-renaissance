@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, input } from "@angular/core";
+import { Component, ChangeDetectionStrategy, input, output } from "@angular/core";
 import { Cv } from "../model/cv";
 import { NgClass } from "@angular/common";
 import { ItemComponent } from "../item/item.component";
@@ -12,4 +12,9 @@ import { ItemComponent } from "../item/item.component";
 })
 export class ListComponent {
   cvs = input<Cv[] | null>([]);
+  selectCv = output<Cv>();
+
+  forwardCvSelection(cv: Cv): void {
+    this.selectCv.emit(cv);
+  }
 }

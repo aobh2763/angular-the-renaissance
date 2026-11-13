@@ -1,0 +1,9 @@
+<div class="row g-3">
+  <div class="col-md-5">
+    <h2>MasterDetail - Liste des CV</h2>
+    <app-list [cvs]="cvs.value()" (selectCv)="showDetails($event)"></app-list>
+  </div>
+  <div class="col-md-7">
+    <router-outlet></router-outlet>
+  </div>
+</div>

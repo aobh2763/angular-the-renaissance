@@ -15,6 +15,7 @@ import { RhComponent } from "./optimizationPattern/rh/rh.component";
 import { RainbowInputComponent } from './components/rainbow/rainbow.component';
 import { TtcComponent } from "./ttc/ttc.component";
 import { CountryCurrencySelectorComponent } from "./tp2/currency-selector/country-currency-selector.component";
+import { MasterDetailsCvComponent } from "./cv/master-details-cv/master-details-cv.component";
 
 const routes: Route[] = [
   { path: 'login', component: LoginComponent },
@@ -26,6 +27,10 @@ const routes: Route[] = [
   },
   { path: 'cv/add', component: AddCvComponent, canActivate: [AuthGuard] },
   { path: 'cv/:id', component: DetailsCvComponent },
+  {
+    path: 'masterDetail',component: MasterDetailsCvComponent,
+    children: [{ path: ':id', component: DetailsCvComponent }],
+  },
   {
     path: '',
     component: FrontComponent,
