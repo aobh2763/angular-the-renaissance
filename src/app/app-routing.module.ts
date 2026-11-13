@@ -14,6 +14,7 @@ import { DetailsCvComponent } from "./cv/details-cv/details-cv.component";
 import { RhComponent } from "./optimizationPattern/rh/rh.component";
 import { RainbowInputComponent } from './components/rainbow/rainbow.component';
 import { TtcComponent } from "./ttc/ttc.component";
+import { CountryCurrencySelectorComponent } from "./tp2/currency-selector/country-currency-selector.component";
 
 const routes: Route[] = [
   { path: 'login', component: LoginComponent },
@@ -33,6 +34,7 @@ const routes: Route[] = [
       { path: 'word', component: MiniWordComponent },
     ],
   },
+  { path: 'currency-selector', component: CountryCurrencySelectorComponent },
   {
     path: 'admin',
     component: AdminComponent,
