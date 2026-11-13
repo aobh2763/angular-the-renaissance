@@ -1,0 +1,31 @@
+
+<h1>Currency Selector</h1>
+<hr>
+
+
+<select
+  class="form-control"
+  [value]="selectedCountry().name"
+  (change)="onCountryChange($event)"
+>
+  @for (country of countries(); track country.name) {
+    <option [value]="country.name">
+      {{ country.name }}
+    </option>
+  }
+</select>
+
+<br>
+
+
+<select
+  class="form-control"
+  [value]="selectedCurrency()"
+  (change)="onCurrencyChange($event)"
+>
+  @for (currency of availableCurrencies(); track currency) {
+    <option [value]="currency">
+      {{ currency }}
+    </option>
+  }
+</select>
