@@ -13,6 +13,7 @@ import { CvComponent } from "./cv/cv/cv.component";
 import { DetailsCvComponent } from "./cv/details-cv/details-cv.component";
 import { RhComponent } from "./optimizationPattern/rh/rh.component";
 import { RainbowInputComponent } from "./components/rainbow-input/rainbow-input.component";
+import { ProductsComponent } from "./products/products.component";
 
 const routes: Route[] = [
   { path: "login", component: LoginComponent },
@@ -29,7 +30,7 @@ const routes: Route[] = [
     children: [
       { path: "todo", component: TodoComponent },
       { path: "word", component: MiniWordComponent },
-    ],
+          ],
   },
   {
     path: "admin",
@@ -37,6 +38,7 @@ const routes: Route[] = [
     children: [{ path: "color", component: ColorComponent }],
   },
   { path: "rainbow", component: RainbowInputComponent },
+  { path: "products", component: ProductsComponent },
   { path: "**", component: NF404Component },
 ];
 

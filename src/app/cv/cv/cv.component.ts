@@ -6,14 +6,15 @@ import { LoggerService } from "../../services/logger.service";
 import { ToastrService } from "ngx-toastr";
 import { CvService } from "../services/cv.service";
 
+
 @Component({
   selector: 'app-cv',
   templateUrl: './cv.component.html',
   styleUrls: ['./cv.component.css'],
 })
 export class CvComponent {
-  
-  /* 
+
+  /*
   cvs: Cv[] = [];
   selectedCv: Cv | null = null;
   */
@@ -58,6 +59,6 @@ export class CvComponent {
   onCvSelected(cvs: Cv[]) {
     this.cvs$ = of(cvs);
 
-    
+
   }
 }

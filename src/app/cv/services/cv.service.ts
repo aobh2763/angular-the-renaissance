@@ -106,7 +106,7 @@ export class CvService {
    * @param name : string
    * @returns cvs Cv[]
    */
-  selectByName(value: string) {
+  selectByName(value: string) :  Observable<Cv[]>  {
 
     if (!value.trim()) {
       return this.getCvs();
@@ -120,7 +120,7 @@ export class CvService {
       },
     });
     const params = new HttpParams().set("filter", search);
-    return this.http.get<any>(API.cv, { params });
+    return this.http.get<Cv[]>(API.cv, { params });
   }
   /**
    * Recherche les cvs dont la valeur est égale à la chaine passée en paramètre
