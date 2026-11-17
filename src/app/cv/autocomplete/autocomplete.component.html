@@ -7,9 +7,6 @@
     @if (results.isLoading()) {
     <div class="list-group-item text-muted">Recherche en cours…</div>
     }
-    @if (results.error(); as error) {
-    <div class="list-group-item text-danger">La recherche a échoué : {{ error.message }}</div>
-    }
     @for (cv of results.value(); track cv.id) {
     <div class="list-group-item list-group-item-action">
       <app-item [cv]="cv" [disabled]="cv.id === selectedCv()?.id" (selectCv)="closeDropdown()"></app-item>
