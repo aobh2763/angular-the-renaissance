@@ -1,7 +1,9 @@
 <p>products-filter Exo</p>
 
-<input class="form-control"  #form type="text"   placeholder="Search products">
-<select class="form-control" #filter>
+<input class="form-control"  #form type="text"   placeholder="Search products"
+  [value]="search()" (input)="search.set(form.value)">
+<select class="form-control" #filter
+  [value]="category()" (change)="category.set(filter.value)">
   <option value="">All</option>
   @for (c of categories; track c) {
   <option [value]="c">{{ c }}</option>
@@ -11,7 +13,7 @@
   <button class="btn btn-danger" (click)="reset()">Reset</button>
 </section>
 <ul class="list-group">
-  @for (product of products; track product.name) {
+  @for (product of filteredProducts(); track product.name) {
   <li class="list-group-item">
     {{ product.name }} <small>({{ product.category }})</small>
   </li>
