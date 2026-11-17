@@ -1,35 +1,19 @@
-import { Injectable, inject } from '@angular/core';
-import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  RouterStateSnapshot,
-  UrlTree,
-  Router,
-} from '@angular/router';
-import { Observable } from 'rxjs';
+import { inject } from '@angular/core';
+import { CanMatchFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { APP_ROUTES } from '../../../config/routes.config';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class AuthGuard implements CanActivate {
-  private authService = inject(AuthService);
-  private router = inject(Router);
+/**
+ * canMatch (and not canActivate): if the user is not logged in, the route
+ * does not even match, so its lazy chunk is never downloaded.
+ * We return a UrlTree (redirect) instead of `false` so the router does not
+ * fall through to the next route (e.g. 'cv/add' would match 'cv/:id').
+ */
+export const authGuard: CanMatchFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ):
-    | Observable<boolean | UrlTree>
-    | Promise<boolean | UrlTree>
-    | boolean
-    | UrlTree {
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate([APP_ROUTES.login]);
-      return false;
-    }
-    return true;
-  }
-}
+  return authService.isAuthenticated()
+    ? true
+    : router.createUrlTree([APP_ROUTES.login]);
+};

@@ -1,10 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from "@angular/core";
+import { Component, ChangeDetectionStrategy, computed, inject } from "@angular/core";
 import { rxResource, toSignal } from "@angular/core/rxjs-interop";
 import { catchError, of } from "rxjs";
 import { Cv } from "../model/cv";
 import { LoggerService } from "../../services/logger.service";
 import { ToastrService } from "ngx-toastr";
 import { CvService } from "../services/cv.service";
+import { EmbaucheService } from "../services/embauche.service";
 import { ListComponent } from "../list/list.component";
 import { CvCardComponent } from "../cv-card/cv-card.component";
 import { EmbaucheComponent } from "../embauche/embauche.component";
@@ -35,6 +36,9 @@ export class CvComponent {
       ),
   });
 
+  // Used as the @defer trigger: load <app-embauche> only once someone is hired
+  private embauchees = inject(EmbaucheService).embauchees;
+  hasEmbauchees = computed(() => this.embauchees().length > 0);
   selectedCv = toSignal(this.cvService.selectCv$, { initialValue: null });
   date = new Date();
 

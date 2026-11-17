@@ -10,4 +10,12 @@
     <app-cv-card [cv]="selectedCv()"></app-cv-card>
   </div>
 </div>
-<app-embauche></app-embauche>
+<!--
+  when hasEmbauchees() : the list is empty until someone is hired -> don't load it before.
+  prefetch on idle     : download the chunk when the browser is idle, so it renders instantly.
+-->
+@defer (when hasEmbauchees(); prefetch on idle) {
+  <app-embauche></app-embauche>
+} @loading (minimum 300ms) {
+  <div class="alert alert-light mt-2">Chargement des embauchés...</div>
+}

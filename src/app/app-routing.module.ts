@@ -1,56 +1,75 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Route } from "@angular/router";
-import { TodoComponent } from "./todo/todo/todo.component";
-import { MiniWordComponent } from "./directives/mini-word/mini-word.component";
-import { ColorComponent } from "./components/color/color.component";
-import { FrontComponent } from "./templates/front/front.component";
-import { AdminComponent } from "./templates/admin/admin.component";
-import { LoginComponent } from "./auth/login/login.component";
-import { NF404Component } from "./components/nf404/nf404.component";
-import { AuthGuard } from "./auth/guards/auth.guard";
-import { AddCvComponent } from "./cv/add-cv/add-cv.component";
-import { CvComponent } from "./cv/cv/cv.component";
-import { DetailsCvComponent } from "./cv/details-cv/details-cv.component";
-import { RhComponent } from "./optimizationPattern/rh/rh.component";
-import { RainbowInputComponent } from './components/rainbow/rainbow.component';
-import { TtcComponent } from "./ttc/ttc.component";
-import { CountryCurrencySelectorComponent } from "./tp2/currency-selector/country-currency-selector.component";
-import { MasterDetailsCvComponent } from "./cv/master-details-cv/master-details-cv.component";
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { SelectivePreloadingStrategy } from './selective-preloading.strategy';
+// EAGER: always needed (app shell / entry points / fallback) -> in main bundle
+import { FrontComponent } from './templates/front/front.component';
+import { LoginComponent } from './auth/login/login.component';
+import { NF404Component } from './components/nf404/nf404.component';
 
-const routes: Route[] = [
+const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'rh', component: RhComponent },
-  { path: 'rainbow', component: RainbowInputComponent },
+
+  // LAZY + PRELOADED: the core feature, most users go there next
   {
     path: 'cv',
-    component: CvComponent,
+    loadChildren: () => import('./cv/cv.routes').then((m) => m.CV_ROUTES),
+    data: { preload: true },
   },
-  { path: 'cv/add', component: AddCvComponent, canActivate: [AuthGuard] },
-  { path: 'cv/:id', component: DetailsCvComponent },
   {
-    path: 'masterDetail',component: MasterDetailsCvComponent,
-    children: [{ path: ':id', component: DetailsCvComponent }],
+    path: 'masterDetail',
+    loadComponent: () =>
+      import('./cv/master-details-cv/master-details-cv.component').then(
+        (m) => m.MasterDetailsCvComponent,
+      ),
+    data: { preload: true },
+    children: [
+      {
+        path: ':id',
+        loadComponent: () =>
+          import('./cv/details-cv/details-cv.component').then((m) => m.DetailsCvComponent),
+      },
+    ],
   },
+
+  // LAZY only (loaded on first visit): secondary / demo pages
+  { path: 'rh', loadComponent: () => import('./optimizationPattern/rh/rh.component').then((m) => m.RhComponent) },
+  { path: 'rainbow', loadComponent: () => import('./components/rainbow/rainbow.component').then((m) => m.RainbowInputComponent) },
+  { path: 'ttc', loadComponent: () => import('./ttc/ttc.component').then((m) => m.TtcComponent) },
+  {
+    path: 'currency-selector',
+    loadComponent: () =>
+      import('./tp2/currency-selector/country-currency-selector.component').then(
+        (m) => m.CountryCurrencySelectorComponent,
+      ),
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./templates/admin/admin.component').then((m) => m.AdminComponent),
+    children: [
+      { path: 'color', loadComponent: () => import('./components/color/color.component').then((m) => m.ColorComponent) },
+    ],
+  },
+
+  // HOME shell is eager, its child pages are lazy
   {
     path: '',
     component: FrontComponent,
     children: [
-      { path: 'todo', component: TodoComponent },
-      { path: 'word', component: MiniWordComponent },
+      { path: 'todo', loadComponent: () => import('./todo/todo/todo.component').then((m) => m.TodoComponent) },
+      { path: 'word', loadComponent: () => import('./directives/mini-word/mini-word.component').then((m) => m.MiniWordComponent) },
     ],
   },
-  { path: 'currency-selector', component: CountryCurrencySelectorComponent },
-  {
-    path: 'admin',
-    component: AdminComponent,
-    children: [{ path: 'color', component: ColorComponent }],
-  },
-  { path: "ttc", component: TtcComponent },
-  { path: "**", component: NF404Component },
+
+  { path: '**', component: NF404Component },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [
+    RouterModule.forRoot(routes, {
+      // Custom strategy: only preload routes flagged with data: { preload: true }
+      preloadingStrategy: SelectivePreloadingStrategy,
+    }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
