@@ -1,22 +1,20 @@
-<input
-  type="text"
-  class="form-control"
-  placeholder="Rechercher un CV par nom"
-  [value]="query()"
-  (input)="onSearchInput($event)"
-/>
-@if (results.isLoading()) {
-  <p class="mt-2">Recherche en cours…</p>
-}
-@if (results.error(); as error) {
-  <p class="text-danger mt-2">La recherche a échoué : {{ error.message }}</p>
-}
-@if (results.value().length) {
-  <ul class="list-group mt-2">
-    @for (cv of results.value(); track cv.id) {
-      <li class="list-group-item">
-        <app-item [cv]="cv"></app-item>
-      </li>
+<div class="search-box position-relative">
+  <input type="text" class="form-control" placeholder="Rechercher un CV par nom" [value]="query()"
+    (input)="onSearchInput($event)" />
+
+  @if (isOpen() && (results.isLoading() || results.error() || results.value().length)) {
+  <div class="search-dropdown list-group shadow">
+    @if (results.isLoading()) {
+    <div class="list-group-item text-muted">Recherche en cours…</div>
     }
-  </ul>
-}
+    @if (results.error(); as error) {
+    <div class="list-group-item text-danger">La recherche a échoué : {{ error.message }}</div>
+    }
+    @for (cv of results.value(); track cv.id) {
+    <div class="list-group-item list-group-item-action">
+      <app-item [cv]="cv" [disabled]="cv.id === selectedCv()?.id" (selectCv)="closeDropdown()"></app-item>
+    </div>
+    }
+  </div>
+  }
+</div>

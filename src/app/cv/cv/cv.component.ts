@@ -9,12 +9,13 @@ import { ListComponent } from "../list/list.component";
 import { CvCardComponent } from "../cv-card/cv-card.component";
 import { EmbaucheComponent } from "../embauche/embauche.component";
 import { UpperCasePipe, DatePipe } from "@angular/common";
+import { AutocompleteComponent } from "../autocomplete/autocomplete.component";
 @Component({
-    selector: "app-cv",
-    templateUrl: "./cv.component.html",
-    styleUrls: ["./cv.component.css"],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [ListComponent, CvCardComponent, EmbaucheComponent, UpperCasePipe, DatePipe]
+  selector: "app-cv",
+  templateUrl: "./cv.component.html",
+  styleUrls: ["./cv.component.css"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [ListComponent, CvCardComponent, EmbaucheComponent, UpperCasePipe, DatePipe, AutocompleteComponent]
 })
 export class CvComponent {
   private logger = inject(LoggerService);

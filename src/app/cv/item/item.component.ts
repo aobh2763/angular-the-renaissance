@@ -5,20 +5,22 @@ import { NgStyle } from "@angular/common";
 import { DefaultImagePipe } from "../pipes/default-image.pipe";
 
 @Component({
-    selector: "app-item",
-    templateUrl: "./item.component.html",
-    styleUrls: ["./item.component.css"],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [NgStyle, DefaultImagePipe]
+  selector: "app-item",
+  templateUrl: "./item.component.html",
+  styleUrls: ["./item.component.css"],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [NgStyle, DefaultImagePipe]
 })
 export class ItemComponent {
   private cvService = inject(CvService);
 
   cv = input.required<Cv>();
   size = input(50);
+  disabled = input(false);
   selectCv = output<Cv>();
 
   onSelectCv() {
+    if (this.disabled()) return;
     this.cvService.selectCv(this.cv());
     this.selectCv.emit(this.cv());
   }

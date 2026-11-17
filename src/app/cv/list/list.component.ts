@@ -12,6 +12,7 @@ import { ItemComponent } from "../item/item.component";
 })
 export class ListComponent {
   cvs = input<Cv[] | null>([]);
+  selectedCv = input<Cv | null>(null);
   selectCv = output<Cv>();
 
   forwardCvSelection(cv: Cv): void {

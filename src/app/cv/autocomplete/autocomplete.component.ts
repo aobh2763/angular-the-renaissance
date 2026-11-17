@@ -1,8 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy, debounced, signal } from "@angular/core";
-import { rxResource } from "@angular/core/rxjs-interop";
+import { rxResource, toSignal } from "@angular/core/rxjs-interop";
 import { CvService } from "../services/cv.service";
 import { ItemComponent } from "../item/item.component";
-import { Cv } from "../model/cv";
 
 @Component({
   selector: "app-autocomplete",
@@ -14,10 +13,12 @@ import { Cv } from "../model/cv";
 export class AutocompleteComponent {
   private cvService = inject(CvService);
 
-  selectedCv = signal<Cv | null>(null);
+  selectedCv = toSignal(this.cvService.selectCv$, { initialValue: null });
 
-  select(cv: Cv) {
-    this.selectedCv.set(cv);
+  isOpen = signal(false);
+
+  closeDropdown() {
+    this.isOpen.set(false);
   }
 
   query = signal("");
@@ -29,6 +30,8 @@ export class AutocompleteComponent {
   });
 
   onSearchInput(event: Event): void {
-    this.query.set((event.target as HTMLInputElement).value);
+    const value = (event.target as HTMLInputElement).value;
+    this.query.set(value);
+    this.isOpen.set(value.trim().length > 0);
   }
 }

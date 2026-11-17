@@ -8,7 +8,7 @@
       class="list-group-item"
       >
       <!--     (selectCv)="forwardCv.emit(cv)"-->
-      <app-item [cv]="cv" (selectCv)="forwardCvSelection($event)"></app-item>
+      <app-item [cv]="cv" [disabled]="cv.id === selectedCv()?.id" (selectCv)="forwardCvSelection($event)"></app-item>
     </li>
   }
 </ol>

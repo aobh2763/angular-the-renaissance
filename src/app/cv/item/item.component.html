@@ -1,4 +1,4 @@
-<div (click)="onSelectCv()">
+<div (click)="onSelectCv()" [class.item-disabled]="disabled()">
   <img [ngStyle]="{
       width: size() + 'px',
       height: size() + 'px'
