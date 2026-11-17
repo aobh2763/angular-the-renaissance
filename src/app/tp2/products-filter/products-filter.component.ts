@@ -1,11 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { PRODUCTS } from './product.data';
-import { BehaviorSubject } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-products-filter',
-  imports: [AsyncPipe],
+  imports: [],
   standalone: true,
   templateUrl: './products-filter.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -13,15 +11,25 @@ import { AsyncPipe } from '@angular/common';
 })
 export class ProductsFilterComponent {
   readonly products = PRODUCTS;
-  protected categories = this.products.map((p) => p.category);
+  protected categories = [...new Set(this.products.map((p) => p.category))];
 
-  protected search = new BehaviorSubject<string>('');
-  protected category = new BehaviorSubject<string>('');
+  protected search = signal('');
+  protected category = signal('');
 
+  // depends on BOTH search and category -> recomputed when either one changes
+  protected filteredProducts = computed(() => {
+    const search = this.search().toLowerCase();
+    const category = this.category();
+    return this.products.filter(
+      (p) =>
+        (!category || p.category === category) &&
+        p.name.toLowerCase().includes(search),
+    );
+  });
 
 
   protected reset() {
-    this.search.next('');
-    this.category.next('');
+    this.search.set('');
+    this.category.set('');
   }
 }
